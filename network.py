@@ -54,7 +54,10 @@ class Network:
 		if socket in self.responces:
 			del self.responces[socket]
 
-		socket.shutdown(socket_lib.SHUT_RDWR)
+		try:
+			socket.shutdown(socket_lib.SHUT_RDWR)
+		except OSError:
+			return
 		#socket.close()
 
 

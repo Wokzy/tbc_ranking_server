@@ -2,13 +2,27 @@
 TurboBattleCity ranking and statistics server
 
 # Note: TLS currently based on self-signed certs
+
+Server responce statuses
+
+responce - {'status':int, 'content':string}
+
+0 - success
+1 - Error
+
+
+sqlite3.ProgrammingError: SQLite objects created in a thread can only be used in that same thread. The object was created in thread id 14552 and this is thread id 5468.
+
 """
 
+
+# ММР ПРИ НАВЕДЕНИИ КУРСОРА!!!
 
 import json
 import select
 import sqlite3
 import threading
+import data_handler
 import socket as socket_lib
 
 from config import SOCKET_BYTE_LIMIT, ENCODING
@@ -23,10 +37,13 @@ class RankingServer(Network):
 		"""
 
 		super().__init__()
+		self.request_handler = data_handler.Handler()
 
 
 	def main(self):
 		"""Main loop maintaining connection and processing responces"""
+
+		print('started')
 
 		while self.inputs:
 			self.readable, self.writable, self.exceptional = select.select(self.inputs, self.outputs, self.inputs)
@@ -54,8 +71,11 @@ class RankingServer(Network):
 					self.disconnect(socket)
 					continue
 
-				threading.Thread(target = self.process_data, args=(socket, data,), daemon=True).start()
-				self.outputs.append(socket)
+				#threading.Thread(target = self.process_data, args=(socket, data,), daemon=True).start()
+				self.process_data(socket, data)
+
+				if socket not in self.outputs:
+					self.outputs.append(socket)
 
 
 	def process_writable(self):
@@ -72,8 +92,8 @@ class RankingServer(Network):
 	def process_data(self, socket, data:str):
 		"""Recieved data handler"""
 
-		data = json.loads(data) # All requests must have json format!
+		#data = json.loads(data) # All requests must have json format!
 		self.check_responces_queue(socket)
-		self.responces[socket].put(data)
+		self.responces[socket].put(self.request_handler.handle(data))
 
 RankingServer().main()
