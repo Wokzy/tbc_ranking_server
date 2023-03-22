@@ -6,7 +6,7 @@ import ssl
 import queue
 import socket as socket_lib
 
-from config import HOSTING_ADRESS, CERTFILE
+from config import HOSTING_ADDRESS, CERTFILE
 
 
 
@@ -23,7 +23,7 @@ class Network:
 		context.load_cert_chain(CERTFILE)
 
 		self.socket = context.wrap_socket(self.socket, server_side=True)
-		self.socket.bind(HOSTING_ADRESS)
+		self.socket.bind(HOSTING_ADDRESS)
 		self.socket.listen()
 
 		self.inputs = [self.socket]
