@@ -50,6 +50,8 @@ class DataBase:
 	def create_user(self, username:str, password:str):
 		"""Makes user-creating request to db by input args"""
 
+		username = username[:USERNAME_LEN:]
+
 		if self.get_user(username) is not None:
 			return {"status":1, "content":'This username already exists, choose smth else'}
 
@@ -94,8 +96,14 @@ class DataBase:
 		if login['status'] == 1:
 			return login
 
+
 		if 'username' not in changes:
 			changes['username'] = username
+		else:
+			changes['username'] = changes['username'][:USERNAME_LEN:]
+			if self.get_user(changes['username']) is not None:
+				return {"status":1, "content":'This username already exists, choose smth else'}
+
 		if 'password' not in changes:
 			changes['password'] = password
 
